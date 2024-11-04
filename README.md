@@ -9,3 +9,4 @@ Currently, the datapath is fully functional. This project was done in collaborat
 * Shifter that can optionally perform shifting of binary numbers 1 bit to the left or right; supports sign-extended shifting as well
 
 ## Datapath specification
+![Datapath Specification](https://github.com/thomasafroo/RISCMachine/blob/main/Datapathspec.png?raw=true)
