@@ -2,6 +2,7 @@
 
 This is an ongoing project that implements a simple RISC Machine using Verilog and can be tested using the Intel DE1-SoC development board.
 This project was done in collaboration with my lab partner, Jackson Rockford for CPEN 211: Introduction to Microcomputers.
+
 Currently, the datapath is fully functional. 
 
 ## Elements of the Datapath
