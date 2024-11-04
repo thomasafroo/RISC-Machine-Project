@@ -6,7 +6,7 @@ Currently, the datapath is fully functional. This project was done in collaborat
 ## Elements of the Datapath
 * Register file containing eight 16-bit registers with read/write functionality
 * Arithmetic Logic Unit capable of addition, subtraction, and logical operations AND and NOT
-* Shifter that can optionally perform shifting of binary numbers 1 bit to the left or right; supports sign-extended shifting as well
+* Shifter that can optionally perform shifting of binary numbers 1 bit to the left or right; supports sign-extended shifting
 
 ## Datapath specification
 ![Datapath Specification](https://github.com/thomasafroo/RISCMachine/blob/main/Datapathspec.png?raw=true)
