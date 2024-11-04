@@ -1,6 +1,8 @@
 # Simple RISC Machine
 
-This is an ongoing project that implements a simple RISC Machine using Verilog and can be tested using the Intel DE1-SoC development board.
+This is an ongoing project that implements a Reduced Instruction Set Computer (RISC) using Verilog and can be tested using the Intel DE1-SoC development board.
+The RISC machine can execute a small set of instructions from the ARMv7 Instruction Set Architecture (ISA). 
+
 This project was done in collaboration with my lab partner, Jackson Rockford for CPEN 211: Introduction to Microcomputers.
 
 Currently, the datapath is fully functional. 
