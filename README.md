@@ -1,7 +1,7 @@
 # Simple RISC Machine
 
 This is an ongoing project that implements a simple RISC Machine using Verilog and can be tested using the Intel DE1-SoC development board.
-Currently, the datapath is fully functional.
+Currently, the datapath is fully functional. This project was done in collaboration with my lab partner Jackson Rockford.
 
 ## Modules included
 * Register file containing eight 16-bit registers with read/write functionality
