@@ -5,6 +5,8 @@ The RISC machine can execute a small set of instructions from the ARMv7 Instruct
 
 This project was done in collaboration with my lab partner, Jackson Rockford, for CPEN 211: Introduction to Microcomputers.
 
+Important: Viewers should be aware of the Academic Integrity Policy for CPEN 211.
+
 Currently, the datapath is fully functional. 
 
 ## Elements of the Datapath
