@@ -7,7 +7,7 @@ This project was done in collaboration with my lab partner, Jackson Rockford, fo
 
 Important: viewers should be aware of the Academic Integrity Policy for CPEN 211.
 
-Currently, the datapath is fully functional. 
+Currently, the datapath is fully functional and a finite state machine controller is in development.
 
 ## Elements of the Datapath
 * Register file containing eight 16-bit registers with read/write functionality
