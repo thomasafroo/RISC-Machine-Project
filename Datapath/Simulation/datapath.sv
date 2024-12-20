@@ -1,31 +1,40 @@
 module datapath (
-	input clk,
+	input [1:0] vsel,
+	input [15:0] mdata,
+	input [15:0] sximm8,
+	input [8:0] PC,
+	input [2:0] writenum,
+	input write,
 	input [2:0] readnum,
-	input vsel, loada, loadb,
+	input clk,
+	input loada, loadb,
 	input [1:0] shift,
+	input [15:0] sximm5,
 	input asel, bsel,
 	input [1:0] ALUop,
 	input loadc, loads,
-	input [2:0] writenum,
-	input write,
-	input [15:0] datapath_in,
 	output Z_out,
+	output N_out,
+	output V_out,
 	output [15:0] datapath_out
 	);
 
-	// Internal signals
+	// internal signals
 	reg [15:0] data_in, data_out, A, in, sout, Ain, Bin, out, C;
-	
+	wire Z, V, N;
 
-	// Multiplexer for datapath_in
+	// multiplexer Input to Register File
 	always_comb begin
-		if (vsel) 
-			data_in = datapath_in;
-		else 
-			data_in = datapath_out;
+		case(vsel)
+			4'b00: data_in = mdata;
+			4'b01: data_in = sximm8;
+			4'b10: data_in = {8'b0, PC};
+			4'b11: data_in = C;
+			default: data_in = 16'bx;
+		endcase
 	end
 
-	// Instantiate the register file
+	// instantiate the register file
 	regfile REGFILE(
 			.data_in(data_in),
 			.writenum(writenum),
@@ -35,51 +44,60 @@ module datapath (
 			.data_out(data_out)
 	);
 
-	// register A with load enable
+	// register A 
 	vDFFE rA(.clk(clk), .load(loada), .in(data_out), .out(A));
 
-	// register B with load enable
+	// register B 
 	vDFFE rB(.clk(clk), .load(loadb), .in(data_out), .out(in));
 
-	// Multiplexer for Ain
+	// Ain multiplexer
 	always_comb begin
-		case (asel)
-			1'b1: Ain = 16'b0;
-			default: Ain = A;
-		endcase
+        if (asel) 
+            Ain = 16'b0; // if asel is high, output is 16'b0
+        else
+            Ain = A; // if asel is low, output is the value of A
 	end
 	
-	// Instantiate the shifter
+	// instantiate the shifter
 	shifter sft(
 		.in(in), 
 		.shift(shift), 
 		.sout(sout)
 	);
 
-	// Multiplexer for Bin
+	// Bin multiplexer
 	always_comb begin
-		case (bsel)
-			1'b1: Bin = {11'b0, datapath_in[4:0]};
-			default: Bin = sout;
-		endcase
+		if (bsel)
+			Bin = sximm5;
+		else 
+			Bin = sout;
 	end
 	
-	// Instantiate the ALU
+	// instantiate the ALU
 	ALU alu(
 		.Ain(Ain),
 		.Bin(Bin),
 		.ALUop(ALUop),
 		.out(out),
-		.Z(Z)
+		.Z(Z),
+		.V(V),
+		.N(N)
 	);
 
-	// register C with load enable
+	// register C 
 	vDFFE rC(.clk(clk), .load(loadc), .in(out), .out(C));
 
-	// 
-	vDFFE status(.clk(clk), .load(loads), .in(Z), .out(Z_out));
+	// status flag for Z, V, N
+	reg [2:0] status;
+	assign Z_out = status[2];
+	assign V_out = status[1];
+	assign N_out = status[0];
+	always_ff @(posedge clk) begin
+		if (loads)
+			status <= {Z,V,N};
+	end
 	
 	// datapath output
 	assign datapath_out = C;
 
-endmodule 
+endmodule: datapath
