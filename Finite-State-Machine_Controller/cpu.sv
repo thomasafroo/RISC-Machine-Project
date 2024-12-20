@@ -1,30 +1,48 @@
-`define WAIT 3'b000
-`define DECODE 3'b001
-`define WRITE_IMM 3'b010
-`define LOAD_A 3'b011
-`define LOAD_B 3'b100
-`define LOAD_C 3'b101
-`define WRITE_OUT 3'b110
-
-module cpu(clk,reset,s,load,in,out,N,V,Z,w);
-	input clk, reset, s, load;
-	input [15:0] in;
-	output reg [15:0] out;
-	output reg N, V, Z, w;
+`define MNONE 2'b00
+`define MREAD 2'b01
+`define MWRITE 2'b10 
+module cpu(clk,reset,read_data,mem_cmd,mem_addr,write_data,N,V,Z);
+	input clk, reset;
+	input [15:0] read_data;
+	output reg [1:0] mem_cmd;
+	output reg [15:0] write_data;
+	output reg [8:0] mem_addr;
+	output reg N, V, Z;
 	reg [15:0] IR;
 	reg loada, loadb, loadc, loads, asel, bsel, write;
 	reg [2:0] readnum, writenum;
 	reg [1:0] ALUop, shift, vsel;
 	reg [2:0] opcode, nsel;
 	reg [1:0] op;
-	reg [15:0] sximm5, sximm8;
-
+	reg [15:0] sximm5, sximm8, mdata;
+	reg load_ir, load_pc, reset_pc, load_addr, addr_sel;
+	reg [8:0] next_pc;
+	reg [8:0] PC;
 
 	// Instruction Register
-	always_ff @(posedge clk) begin
-		if (load) begin
-			IR <= in;
-		end
+	vDFFE instr_register(clk, load_ir, read_data, IR);
+
+	// next_pc multiplexer
+	always_comb begin
+		if (reset_pc)
+			next_pc = 9'b0;
+		else 
+			next_pc = PC + 1'b1;
+	end
+
+	// Program Counter
+	vDFFE program_counter(clk, load_pc, next_pc, PC);
+
+	// Data Address
+	reg [8:0] data_address_out;
+	vDFFE data_address(clk, load_addr, write_data[8:0], data_address_out);
+
+	// mem_addr multiplexer
+	always_comb begin
+		if (addr_sel)
+			mem_addr = PC;
+		else 
+			mem_addr = data_address_out;
 	end
 	
 	// Instruction Decoder
@@ -42,10 +60,15 @@ module cpu(clk,reset,s,load,in,out,N,V,Z,w);
 	);
 
 	// Finite State Machine Controller
-	reg [2:0] present_state;
 	fsm_controller controller(
 		.reset(reset),
 		.vsel(vsel), 
+		.load_ir(load_ir),
+		.mem_cmd(mem_cmd),
+		.addr_sel(addr_sel),
+		.load_pc(load_pc),
+		.reset_pc(reset_pc),
+		.load_addr(load_addr),
 		.write(write), 
 		.clk(clk), 
 		.loada(loada), 
@@ -56,18 +79,16 @@ module cpu(clk,reset,s,load,in,out,N,V,Z,w);
 		.loads(loads),
 		.nsel(nsel),
 		.opcode(opcode), 
-		.op(op), 
-		.s(s),
-		.w(w)
+		.op(op)
 	);
 
 
 	// Datapath 
 	datapath DP(
         .vsel(vsel),
-        .mdata(16'b0),
+        .mdata(read_data),
         .sximm8(sximm8), 
-        .PC(8'b0),
+        .PC(8'b0), // for lab 7 bonus, this will be changed
         .writenum(writenum), 
         .write(write),
         .readnum(readnum),
@@ -84,7 +105,7 @@ module cpu(clk,reset,s,load,in,out,N,V,Z,w);
         .Z_out(Z),
 		.V_out(V),
 		.N_out(N),
-        .datapath_out(out)
+        .datapath_out(write_data)
   );
 
 endmodule: cpu
